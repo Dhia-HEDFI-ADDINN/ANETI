@@ -1,0 +1,61 @@
+@use '@angular/material' as mat;
+
+// ANETI Brand Colors
+$aneti-primary: mat.define-palette(mat.$blue-palette, 700);
+$aneti-accent: mat.define-palette(mat.$green-palette, 600);
+$aneti-warn: mat.define-palette(mat.$red-palette);
+$aneti-theme: mat.define-light-theme((
+  color: (primary: $aneti-primary, accent: $aneti-accent, warn: $aneti-warn),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+@include mat.all-component-themes($aneti-theme);
+
+// RTL Support for Arabic
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+// Global styles
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', 'Tajawal', sans-serif;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  h1 { font-size: 28px; font-weight: 500; color: #1565c0; }
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.status-chip {
+  &.brouillon { background-color: #e0e0e0; }
+  &.soumis { background-color: #fff3e0; color: #e65100; }
+  &.valide { background-color: #e8f5e9; color: #2e7d32; }
+  &.rejete { background-color: #ffebee; color: #c62828; }
+  &.en-cours { background-color: #e3f2fd; color: #1565c0; }
+  &.actif { background-color: #e8f5e9; color: #2e7d32; }
+}
+
+.mat-mdc-form-field { width: 100%; }
+
+.actions-bar {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}

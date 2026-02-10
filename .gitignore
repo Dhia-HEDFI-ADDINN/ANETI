@@ -1,0 +1,52 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/wrapper/
+mvnw
+mvnw.cmd
+
+# IDE
+.idea/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+.npm
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Environment / Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+credentials.json
+
+# Docker
+docker/postgres/data/
+
+# Logs
+logs/
+*.log
+
+# Build artifacts
+build/
+out/

@@ -1,0 +1,139 @@
+{
+  "realm": "aneti",
+  "enabled": true,
+  "displayName": "ANETI - Système d'Information",
+  "displayNameHtml": "<b>ANETI</b> - Agence Nationale pour l'Emploi et le Travail Indépendant",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fr", "ar"],
+  "defaultLocale": "fr",
+  "loginTheme": "keycloak",
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "rememberMe": true,
+  "verifyEmail": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "roles": {
+    "realm": [
+      { "name": "CHERCHEUR_EMPLOI", "description": "Chercheur d'emploi inscrit sur la plateforme" },
+      { "name": "ENTREPRISE", "description": "Entreprise inscrite sur la plateforme" },
+      { "name": "PARTENAIRE", "description": "Partenaire national de l'ANETI" },
+      { "name": "CONSEILLER_REFERENT", "description": "Conseiller référent en BETI" },
+      { "name": "CONSEILLER_ANIMATEUR", "description": "Conseiller animateur territorial" },
+      { "name": "CONSEILLER_CENTRAL", "description": "Conseiller niveau régional/national" },
+      { "name": "CHEF_BETI", "description": "Chef de Bureau d'Emploi et de Travail Indépendant" },
+      { "name": "SUPERVISEUR", "description": "Superviseur régional ou national" },
+      { "name": "ADMINISTRATEUR", "description": "Administrateur du système" }
+    ]
+  },
+  "groups": [
+    { "name": "Chercheurs d'emploi" },
+    { "name": "Entreprises" },
+    { "name": "Partenaires" },
+    {
+      "name": "Conseillers ANETI",
+      "subGroups": [
+        { "name": "Conseillers Référents" },
+        { "name": "Conseillers Animateurs" },
+        { "name": "Conseillers Centraux" },
+        { "name": "Chefs BETI" }
+      ]
+    },
+    { "name": "Administrateurs" }
+  ],
+  "clients": [
+    {
+      "clientId": "aneti-webapp",
+      "name": "ANETI Portail Web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "rootUrl": "http://localhost:4200",
+      "baseUrl": "/",
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:4201/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://localhost:4201"
+      ],
+      "protocol": "openid-connect",
+      "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access"]
+    },
+    {
+      "clientId": "aneti-api",
+      "name": "ANETI API Gateway",
+      "enabled": true,
+      "bearerOnly": true,
+      "publicClient": false,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@aneti.tn",
+      "firstName": "Admin",
+      "lastName": "Système",
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["ADMINISTRATEUR"]
+    },
+    {
+      "username": "conseiller1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "conseiller1@aneti.tn",
+      "firstName": "Mohamed",
+      "lastName": "Ben Ali",
+      "credentials": [{ "type": "password", "value": "test123", "temporary": false }],
+      "realmRoles": ["CONSEILLER_REFERENT"]
+    },
+    {
+      "username": "chercheur1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "chercheur1@example.com",
+      "firstName": "Ahmed",
+      "lastName": "Trabelsi",
+      "credentials": [{ "type": "password", "value": "test123", "temporary": false }],
+      "realmRoles": ["CHERCHEUR_EMPLOI"]
+    },
+    {
+      "username": "entreprise1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "contact@entreprise.tn",
+      "firstName": "Société",
+      "lastName": "Exemple SARL",
+      "credentials": [{ "type": "password", "value": "test123", "temporary": false }],
+      "realmRoles": ["ENTREPRISE"]
+    }
+  ],
+  "scopeMappings": [
+    {
+      "client": "aneti-webapp",
+      "roles": [
+        "CHERCHEUR_EMPLOI", "ENTREPRISE", "PARTENAIRE",
+        "CONSEILLER_REFERENT", "CONSEILLER_ANIMATEUR", "CONSEILLER_CENTRAL",
+        "CHEF_BETI", "SUPERVISEUR", "ADMINISTRATEUR"
+      ]
+    }
+  ]
+}
