@@ -1,0 +1,216 @@
+version: '3.8'
+
+services:
+  # ==================== Infrastructure ====================
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: aneti-postgres
+    environment:
+      POSTGRES_USER: aneti
+      POSTGRES_PASSWORD: aneti_secret
+      POSTGRES_MULTIPLE_DATABASES: >
+        aneti_inscription,aneti_profilage,aneti_accompagnement,aneti_offres,
+        aneti_pae,aneti_rdv,aneti_notification,aneti_journalisation,
+        aneti_documents,aneti_administration,aneti_referentiel,
+        aneti_matching,aneti_mandatement,aneti_prospection,
+        aneti_evenements,aneti_reclamations,aneti_reporting
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aneti"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: aneti-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/aneti_keycloak
+      KC_DB_USERNAME: aneti
+      KC_DB_PASSWORD: aneti_secret
+    command: start-dev --import-realm
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./docker/keycloak/aneti-realm.json:/opt/keycloak/data/import/aneti-realm.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ==================== Spring Cloud Infrastructure ====================
+
+  discovery-server:
+    build:
+      context: ./backend/aneti-discovery-server
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-discovery
+    ports:
+      - "8761:8761"
+    environment:
+      EUREKA_PASSWORD: eureka_secret
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build:
+      context: ./backend/aneti-gateway
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_PASSWORD: eureka_secret
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/aneti
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  # ==================== Business Services ====================
+
+  service-inscription:
+    build:
+      context: ./backend/aneti-service-inscription
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-inscription
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: aneti
+      DB_PASSWORD: aneti_secret
+      EUREKA_PASSWORD: eureka_secret
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/aneti
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  service-profilage:
+    build:
+      context: ./backend/aneti-service-profilage
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-profilage
+    ports:
+      - "8082:8082"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: aneti
+      DB_PASSWORD: aneti_secret
+      EUREKA_PASSWORD: eureka_secret
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/aneti
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  service-accompagnement:
+    build:
+      context: ./backend/aneti-service-accompagnement
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-accompagnement
+    ports:
+      - "8083:8083"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: aneti
+      DB_PASSWORD: aneti_secret
+      EUREKA_PASSWORD: eureka_secret
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/aneti
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  service-offres:
+    build:
+      context: ./backend/aneti-service-offres
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-offres
+    ports:
+      - "8084:8084"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: aneti
+      DB_PASSWORD: aneti_secret
+      EUREKA_PASSWORD: eureka_secret
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/aneti
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  service-pae:
+    build:
+      context: ./backend/aneti-service-pae
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-pae
+    ports:
+      - "8085:8085"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: aneti
+      DB_PASSWORD: aneti_secret
+      EUREKA_PASSWORD: eureka_secret
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/aneti
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  service-rdv:
+    build:
+      context: ./backend/aneti-service-rdv
+      dockerfile: ../../docker/Dockerfile.service
+    container_name: aneti-rdv
+    ports:
+      - "8086:8086"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: aneti
+      DB_PASSWORD: aneti_secret
+      EUREKA_PASSWORD: eureka_secret
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/aneti
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  # ==================== Frontend ====================
+
+  webapp:
+    build:
+      context: ./frontend/aneti-webapp
+      dockerfile: ../../docker/Dockerfile.frontend
+    container_name: aneti-webapp
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway
+
+volumes:
+  postgres_data:
